@@ -17,5 +17,5 @@ setup(name='ffm',
       include_package_data=True,
       license='BSD 3-clause',
       classifiers=['License :: OSI Approved :: BSD 3-clause'],
-      url='https://github.com/alexeygrigorev/libffm-python'
+      url='https://github.com/Risalto/libffm-python'
 )
