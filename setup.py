@@ -3,7 +3,7 @@ from setuptools import setup
 # Please use setup_pip.py for generating and deploying pip installation
 # detailed instruction in setup_pip.py
 setup(name='ffm',
-      version='7e8621d',
+      version='0.1',
       description="LibFFM Python Package",
       long_description="LibFFM Python Package",
       install_requires=[
