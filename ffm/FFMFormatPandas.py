@@ -56,10 +56,6 @@ class FFMFormatPandas:
 
     def transform_row_(self, row, t):
         ffm = []
-        if self.y != None:
-            ffm.append(str(row.loc[row.index == self.y][0]))
-        if self.y is None:
-            ffm.append(str(0))
 
         for col, val in row.loc[row.index != self.y].to_dict().items():
             col_type = t[col]
@@ -67,13 +63,13 @@ class FFMFormatPandas:
                 if type(val) is dict:
                     for k,v in val.items():
                         name = '{}_{}'.format(col, k)
-                        ffm.append('{}:{}:{}'.format(self.field_index_[col], self.feature_index_[name], v))
+                        ffm.append((self.field_index_[col], self.feature_index_[name], v))
                 else:
                     name = '{}_{}'.format(col, val)
-                    ffm.append('{}:{}:1'.format(self.field_index_[col], self.feature_index_[name]))
+                    ffm.append((self.field_index_[col], self.feature_index_[name],1))
             elif col_type.kind == 'i' or col_type.kind == 'f':
-                ffm.append('{}:{}:{}'.format(self.field_index_[col], self.feature_index_[col], val))
-        return ' '.join(ffm)
+                ffm.append((self.field_index_[col], self.feature_index_[col], val))
+        return ffm
 
     def transform(self, df):
         t = df.dtypes.to_dict()
