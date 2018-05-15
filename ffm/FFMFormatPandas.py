@@ -34,7 +34,7 @@ class FFMFormatPandas:
 
         for col in df.columns:
             if df[col].dtype.kind == 'O':
-                if type(df[col].idx[0]) is dict:
+                if type(df[col].iloc[0]) is dict:
                     vals = set()
                     df[col].apply(lambda d: [vals.add(k) for k, v in d.items()])
                 else:
