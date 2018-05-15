@@ -1,94 +1,88 @@
 #ifndef _LIBFFM_H
 #define _LIBFFM_H
 
-#include <string>
+#ifdef __cplusplus
+extern "C" 
+{
 
-extern "C" {
-
-namespace ffm {
-
-using namespace std;
+namespace ffm
+{
+#endif
 
 typedef float ffm_float;
 typedef double ffm_double;
 typedef int ffm_int;
 typedef long long ffm_long;
 
-struct ffm_node {
-    ffm_int f; // field index
-    ffm_int j; // feature index
-    ffm_float v; // value
+struct ffm_node
+{
+    ffm_int f;
+    ffm_int j;
+    ffm_float v;
 };
 
-struct ffm_model {
-    ffm_int n; // number of features
-    ffm_int m; // number of fields
-    ffm_int k; // number of latent factors
-    ffm_float *W = nullptr;
+struct ffm_problem
+{
+    ffm_int n;
+    ffm_int l;
+    ffm_int m;
+    ffm_node *X;
+    ffm_long *P;
+    ffm_float *Y;
+};
+
+struct ffm_model
+{
+    ffm_int n;
+    ffm_int m;
+    ffm_int k;
+    ffm_float *W;
     bool normalization;
-    ~ffm_model();
 };
 
-struct ffm_parameter {
-    ffm_float eta = 0.2; // learning rate
-    ffm_float lambda = 0.00002; // regularization parameter
-    ffm_int nr_iters = 15;
-    ffm_int k = 4; // number of latent factors
-    bool normalization = true;
-    bool auto_stop = false;
+struct ffm_parameter
+{
+    ffm_float eta;
+    ffm_float lambda;
+    ffm_int nr_iters;
+    ffm_int k;
+    ffm_int nr_threads;
+    bool quiet;
+    bool normalization;
+    bool random;
+    bool auto_stop;
 };
 
-void ffm_read_problem_to_disk(string txt_path, string bin_path);
+ffm_problem* ffm_read_problem(char const *path);
 
-void ffm_save_model(ffm_model &model, string path);
+int ffm_read_problem_to_disk(char const *txt_path, char const *bin_path);
 
-ffm_model ffm_load_model(string path);
+void ffm_destroy_problem(struct ffm_problem **prob);
 
-ffm_model ffm_train_on_disk(string Tr_path, string Va_path, ffm_parameter param);
+ffm_int ffm_save_model(ffm_model *model, char const *path);
 
-ffm_float ffm_predict(ffm_node *begin, ffm_node *end, ffm_model &model);
+ffm_model* ffm_load_model(char const *path);
 
+void ffm_destroy_model(struct ffm_model **model);
 
-// new structs and methods for the wrapper
+ffm_parameter ffm_get_default_param();
 
-struct ffm_line {
-    ffm_node* data;
-    ffm_float label;
-    ffm_int size;
-};
+ffm_model* ffm_train_with_validation(struct ffm_problem *Tr, struct ffm_problem *Va, struct ffm_parameter param);
 
-struct ffm_problem {
-    ffm_int size = 0;
-    ffm_long num_nodes = 0;
+ffm_model* ffm_train(struct ffm_problem *prob, struct ffm_parameter param);
 
-    ffm_node* data;
-    ffm_long* pos;
-    ffm_float* labels;
-    ffm_float* scales;
+ffm_model* ffm_train_with_validation_on_disk(char const *Tr_path, char const *Va_path, struct ffm_parameter param);
 
-    ffm_int n = 0;
-    ffm_int m = 0;
-};
+ffm_model* ffm_train_on_disk(char const *path, struct ffm_parameter param);
 
-ffm_model ffm_load_model_c_string(char *path);
+ffm_float ffm_predict(ffm_node *begin, ffm_node *end, ffm_model *model, const char isprint);
 
-void ffm_save_model_c_string(ffm_model &model, char *path);
+ffm_float ffm_cross_validation(struct ffm_problem *prob, ffm_int nr_folds, struct ffm_parameter param);
 
-ffm_problem ffm_convert_data(ffm_line *data, ffm_int num_lines);
+#ifdef __cplusplus
+} // namespace mf
 
-void ffm_cleanup_data(ffm_problem *p);
-
-ffm_model ffm_init_model(ffm_problem &data, ffm_parameter params);
-
-ffm_float ffm_train_iteration(ffm_problem &data, ffm_model &model, ffm_parameter params);
-
-ffm_float ffm_predict_array(ffm_node *nodes, int len, ffm_model &model);
-
-ffm_float* ffm_predict_batch(ffm_problem &data, ffm_model &model);
-
-void ffm_cleanup_prediction(ffm_float* f);
-
-} // namespace ffm
+} // extern "C"
+#endif
 
 #endif // _LIBFFM_H
-}
