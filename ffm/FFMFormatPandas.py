@@ -33,14 +33,19 @@ class FFMFormatPandas:
             last_idx = 0
 
         for col in df.columns:
-            vals = df[col].unique()
-            for val in vals:
-                if pd.isnull(val):
-                    continue
-                name = '{}_{}'.format(col, val)
-                if name not in self.feature_index_:
-                    self.feature_index_[name] = last_idx
-                    last_idx += 1
+            if df[col].dtype.kind == 'O':
+                if type(df[col].idx[0]) is dict:
+                    vals = set()
+                    df[col].apply(lambda d: [vals.add(k) for k, v in d.items()])
+                else:
+                    vals = df[col].unique()
+                for val in vals:
+                    if pd.isnull(val):
+                        continue
+                    name = '{}_{}'.format(col, val)
+                    if name not in self.feature_index_:
+                        self.feature_index_[name] = last_idx
+                        last_idx += 1
             self.feature_index_[col] = last_idx
             last_idx += 1
         return self
@@ -58,9 +63,14 @@ class FFMFormatPandas:
 
         for col, val in row.loc[row.index != self.y].to_dict().items():
             col_type = t[col]
-            name = '{}_{}'.format(col, val)
             if col_type.kind ==  'O':
-                ffm.append('{}:{}:1'.format(self.field_index_[col], self.feature_index_[name]))
+                if type(val) is dict:
+                    for k,v in val.items():
+                        name = '{}_{}'.format(col, k)
+                        ffm.append('{}:{}:{}'.format(self.field_index_[col], self.feature_index_[name], v))
+                else:
+                    name = '{}_{}'.format(col, val)
+                    ffm.append('{}:{}:1'.format(self.field_index_[col], self.feature_index_[name]))
             elif col_type.kind == 'i' or col_type.kind == 'f':
                 ffm.append('{}:{}:{}'.format(self.field_index_[col], self.feature_index_[col], val))
         return ' '.join(ffm)
