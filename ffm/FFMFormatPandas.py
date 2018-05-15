@@ -61,7 +61,7 @@ class FFMFormatPandas:
             name = '{}_{}'.format(col, val)
             if col_type.kind ==  'O':
                 ffm.append('{}:{}:1'.format(self.field_index_[col], self.feature_index_[name]))
-            elif col_type.kind == 'i':
+            elif col_type.kind == 'i' or col_type.kind == 'f':
                 ffm.append('{}:{}:{}'.format(self.field_index_[col], self.feature_index_[col], val))
         return ' '.join(ffm)
 
