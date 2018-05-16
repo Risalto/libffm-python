@@ -82,7 +82,7 @@ void predict(string test_path, string model_path, string output_path)
             x.push_back(N);
         }
 
-        ffm_float t = ffm_predict(x.data(), x.data()+x.size(), model, true);
+        ffm_float t = ffm_predict(x.data(), x.data()+x.size(), model, false);
 
         ffm_float e = y - t;
 
